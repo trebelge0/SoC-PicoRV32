@@ -1,6 +1,6 @@
 # RISC-V Nano-SoC
 
-![CI Status](https://github.com/YOUR_USER/YOUR_REPO/actions/workflows/ci.yml/badge.svg)
+![CI Status](https://github.com/trebelge0/SoC-PicoRV32/actions/workflows/ci.yml/badge.svg)
 
 A minimalist System-on-Chip (SoC) based on the **PicoRV32** processor (RISC-V RV32I). This project implements a complete architecture including RAM, a data bus, and control peripherals, all validated by an automated unit testing suite using **VUnit**.
 
