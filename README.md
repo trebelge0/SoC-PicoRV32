@@ -1,8 +1,4 @@
-# ⚡ RISC-V Nano-SoC
-
-![CI Status](https://github.com/YOUR_USER/YOUR_REPO/actions/workflows/ci.yml/badge.svg)
-![License](https://img.shields.io/badge/License-MIT-blue.svg)
-![Language](https://img.shields.io/badge/Language-VHDL%20%2F%20C-orange.svg)
+# RISC-V Nano-SoC
 
 A minimalist System-on-Chip (SoC) based on the **PicoRV32** processor (RISC-V RV32I). This project implements a complete architecture including RAM, a data bus, and control peripherals, all validated by an automated unit testing suite using **VUnit**.
 
@@ -90,4 +86,4 @@ The project follows a Unit Testing approach. Scenarios defined in sim/tb_top.vhd
 
 * Migrate the interconnect to the AXI4-Lite standard.
 
-Project developed to deepen knowledge in RISC-V architectures and automated hardware verification.# SoC-PicoRV32
+Project developed to deepen knowledge in RISC-V architectures and automated hardware verification.
