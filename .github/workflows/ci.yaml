@@ -1,0 +1,34 @@
+name: SoC Verification Suite
+
+on: [push, pull_request]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: |
+          pip install vunit_hdl
+          sudo apt-get update
+          sudo apt-get install -y ghdl gcc-riscv64-unknown-elf
+
+      - name: Compile Software & Run Tests
+        env:
+          VUNIT_SIMULATOR: ghdl
+        run: |
+          make test
+
+      - name: Upload Test Results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vunit-logs
+          path: vunit_out/test_output/

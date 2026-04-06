@@ -1,0 +1,7 @@
+vunit_out/
+sw/*.elf
+sw/*.bin
+sw/*.hex
+sw/*.o
+*.pyc
+.pytest_cache/
