@@ -6,7 +6,8 @@ entity top is
     port (
         clk_i    : in  std_logic; 
         rst_i    : in  std_logic; 
-        gpio_o   : out std_logic_vector(31 downto 0)
+        gpio_o   : out std_logic_vector(31 downto 0);
+        irq      : out std_logic
     );
 end entity;
 
@@ -21,14 +22,20 @@ architecture behav of top is
     signal mem_wstrb : std_logic_vector(3 downto 0);
 
     signal ram_rdata  : std_logic_vector(31 downto 0);
+    signal timer_rdata  : std_logic_vector(31 downto 0);
 
     signal gpio_ready : std_logic;
     signal ram_ready : std_logic;
+    signal timer_ready : std_logic;
 
     signal gpio_sel : std_logic;
     signal ram_sel : std_logic;
+    signal timer_sel : std_logic;
 
     signal resetn : std_logic;
+
+    signal timer_irq : std_logic;
+    signal cpu_irq : std_logic;
 
 begin
 
@@ -49,45 +56,64 @@ begin
         pcpi_rd    => (others => '0'),
         pcpi_wait  => '0',
         pcpi_ready => '0',
-        irq        => (others => '0')
+        irq        => (31 downto 1 => '0') & cpu_irq
     );
 
     -- RAM : 0x00000000 - 0x0000FFFF
     ram_inst: entity work.ram
     port map (
         clk => clk_i,
-        rst => rst_i,
+        reset => rst_i,
         addr => mem_addr,
         wdata => mem_wdata,
         wstrb => mem_wstrb,
-        ram_ready => ram_ready,
-        ram_rdata => ram_rdata,
-        ram_sel => ram_sel
+        ready => ram_ready,
+        rdata => ram_rdata,
+        sel => ram_sel
     );
 
     -- GPIO : 0x10000000
     gpio_inst: entity work.gpio
     port map (
         clk => clk_i,
-        rst => rst_i,
+        reset => rst_i,
         addr => mem_addr,
         wdata => mem_wdata,
         wstrb => mem_wstrb,
-        gpio_rdata => gpio_o,
-        gpio_ready => gpio_ready,
-        gpio_sel => gpio_sel
+        rdata => gpio_o,
+        ready => gpio_ready,
+        sel => gpio_sel
     );
+
+    timer_inst: entity work.timer
+        port map (
+            clk => clk_i,
+            reset => rst_i,
+            addr => mem_addr,
+            wdata => mem_wdata,
+            wstrb => mem_wstrb,
+            ready => timer_ready,
+            rdata => timer_rdata,
+            irq => timer_irq,
+            sel => timer_sel
+        );
+
+
+    cpu_irq <= timer_irq;
+    irq <= cpu_irq;
 
     -- select logic
     ram_sel  <= '1' when (mem_addr(31 downto 28) = "0000" and mem_valid = '1') else '0';
     gpio_sel <= '1' when (mem_addr(31 downto 28) = "0001" and mem_valid = '1') else '0';
+    timer_sel <= '1' when (mem_addr(31 downto 28) = "0010" and mem_valid = '1') else '0';
 
     -- mux mémoire
     mem_rdata <= ram_rdata when ram_sel = '1' else 
                  gpio_o when gpio_sel = '1' else 
+                 timer_rdata when timer_sel = '1' else
                  (others => '0');
 
     -- ready logic
-    mem_ready <= mem_valid and (ram_ready or gpio_ready);
+    mem_ready <= mem_valid and (ram_ready or gpio_ready or timer_ready);
 
 end;

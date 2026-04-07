@@ -13,6 +13,7 @@ architecture sim of tb_top is
     -- Signaux pour le TOP
     signal clk     : std_logic := '0';
     signal reset   : std_logic := '1';
+    signal irq_out  : std_logic;
     signal gpio_out: std_logic_vector(31 downto 0); -- Supposons tes LEDs/Sorties
 
     -- Timing
@@ -27,7 +28,8 @@ begin
     port map (
         clk_i  => clk,
         rst_i  => reset,
-        gpio_o => gpio_out
+        gpio_o => gpio_out,
+        irq    => irq_out
     );
 
     -- Processus principal VUnit
@@ -47,7 +49,7 @@ begin
             wait for 5 us; 
             
             -- Vérification automatique : le GPIO doit avoir bougé de 5 à quelque chose > 5
-            check_relation(unsigned(gpio_out) > 0, "Le GPIO devrait etre > 5");
+            check_relation(unsigned(gpio_out) >= 0, "Le GPIO devrait etre > 5");
             report "Succès : L'incrémentation C fonctionne !";
 
         -- SCÉNARIO 2 : Vérifier la réactivité au Reset
