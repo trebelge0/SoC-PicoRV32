@@ -29,5 +29,8 @@ firmware.bin: firmware.elf
 firmware.hex: firmware.bin
 	python3 makehex.py $< 32768 > $@
 
+debug: firmware.elf
+	riscv64-unknown-elf-objdump -d $<
+
 clean:
 	rm -f *.elf *.bin *.hex *.o

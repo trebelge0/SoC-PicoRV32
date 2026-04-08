@@ -3,8 +3,9 @@
 A minimalist System-on-Chip (SoC) based on the [**PicoRV32**](https://github.com/YosysHQ/picorv32/tree/main) softcore (RISC-V). 
 
 My work consisted in:
-* Developing **peripherals** in both **VHDL** and **Verilog** (RAM, Timer, GPIO).
-* Implementing **interrupt** processing based on a hardware timer, a **bootloader** in **RISC-V** assembly, and a **C** program for handling.
+* Using the **picorv32.v** and interface it with my modules.
+* Implementing **peripherals** in both **VHDL** and **Verilog** (RAM, Timer, GPIO).
+* Developing **interrupt** processing based on a hardware timer. It included the implementation of a **bootloader** in **RISC-V** assembly, and a **C** program for IRQ handling.
 * Setting up an automated **DevOps** environment (**Makefile**, [**VUnit**](https://vunit.github.io/), **GCC**).
 * Simulation on **Modelsim**.
 
@@ -88,7 +89,32 @@ An interrupt is handled every 100 $\mu s$, and increment GPIO.
 
 <img src="img/irq_handle_end.png" alt="end Logo" width="600">
 
+## Performance of the Interrupts
+
+At **100 MHz** (1 cycle = 10 ns):
+
+| Step | Duration (ns) | Clock Cycles |
+| :--- | :--- | :--- |
+| **CPU Latency** | 90 ns | 9 |
+| **Store CPU State** | 1770 ns | 177 |
+| **IRQ Handler Execution** | 430 ns | 43 |
+| **Restore CPU State** | 1550 ns | 155 |
+| **Total Latency** | **3410 ns** | **341** |
+
+**Total Overhead:** ~3.4 $\mu s$.
+
 ---
+
+## Memory & Stack Architecture
+
+I developed a bootloader (*start.S*) and defined the memory layout (*linker.ld*) inspired by the PicoRV32 design. The resulting memory map and stack architecture are as follows:
+
+* **`00000000` <start>**: Entry point of the program. Initializes the stack pointers and jumps to `main`.
+* **`00000010` <irq_vec>**: IRQ vector. It saves CPU registers into the `<irq_regs>` space using PicoRV32's `qregs`, calls `<irq_handler>`, and finally restores the context.
+* **`00000200` <irq_regs>**: Dedicated memory space to store CPU registers while the Stack Pointer (SP) is used by the handler.
+* **`00000480` <irq_stack>**: Top of the IRQ stack.
+* **`00000514` <main>**: Main program loop.
+* **`00000538` <irq_handler>**: C function that handles the interrupt logic and updates `mtimecmp` for the next event.
 
 ## How to run
 
@@ -103,7 +129,7 @@ sudo apt install gcc-riscv64-unknown-elf
 ```
 
 ### 2. Compile and Simulate (GUI)
-This section refers to the Makefile a the root of the repo.
+Makefile a the root of the repo.
 
 To automatically compile the C firmware (It runs sw/Makefile to get hex firmware) and launch VUnit tests:
 
@@ -119,6 +145,12 @@ make gui
 To only launch tests:
 ```bash
 make test
+```
+
+In sw/Makefile
+To get program architecture with addresses for debugging, run:
+```bash
+make debug
 ```
 
 ---
