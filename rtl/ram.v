@@ -5,7 +5,7 @@ module ram (
     input  wire [31:0] wdata,
     input  wire [3:0]  wstrb,
     input  wire        sel,
-    output reg         ready, // Déclaré comme reg pour être utilisé dans le always
+    output reg         ready,
     output reg  [31:0] rdata
 );
     reg [31:0] mem [0:1023];

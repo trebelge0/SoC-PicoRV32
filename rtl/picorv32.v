@@ -78,7 +78,7 @@ module picorv32 #(
 	parameter [ 0:0] ENABLE_DIV = 0,
 	parameter [ 0:0] ENABLE_IRQ = 1,
 	parameter [ 0:0] ENABLE_IRQ_QREGS = 1,
-	parameter [ 0:0] ENABLE_IRQ_TIMER = 1,
+	parameter [ 0:0] ENABLE_IRQ_TIMER = 0,
 	parameter [ 0:0] ENABLE_TRACE = 0,
 	parameter [ 0:0] REGS_INIT_ZERO = 0,
 	parameter [31:0] MASKED_IRQ = 32'h 0000_0000,
@@ -1470,7 +1470,7 @@ module picorv32 #(
 			pcpi_timeout <= 0;
 			irq_active <= 0;
 			irq_delay <= 0;
-			irq_mask <= ~0;
+			irq_mask <= 0;
 			next_irq_pending = 0;
 			irq_state <= 0;
 			eoi <= 0;
@@ -1511,6 +1511,7 @@ module picorv32 #(
 					ENABLE_IRQ && irq_state[1]: begin
 						eoi <= irq_pending & ~irq_mask;
 						next_irq_pending = next_irq_pending & irq_mask;
+						
 					end
 				endcase
 

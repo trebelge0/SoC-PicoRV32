@@ -1,24 +1,36 @@
-MEMORY
-{
-    RAM (rwx) : ORIGIN = 0x00000000, LENGTH = 32K
+MEMORY {
+    ram : ORIGIN = 0x00000000, LENGTH = 128K
 }
 
 SECTIONS {
-    . = 0x00000000;
+    /* Code and vectors */
+    .text : {
+        . = 0x000000;  /* reset_vec -> 0x000000 */
+        start.o(.text) 
+        *(.text .text.*)
+    } > ram
 
-    /* On force les vecteurs à l'adresse 0 */
-    .vectors : {
-        KEEP(*(.vectors))
-    } > RAM
+    /* Constnates */
+    .rodata : {
+        . = ALIGN(4);
+        *(.rodata .rodata.*)
+    } > ram
 
-    .text : { 
-        *(.text*) 
-    } > RAM
+    /* Variables globales */
+    .data : {
+        . = ALIGN(4);
+        *(.data .data.*)
+    } > ram
 
-    .rodata : { *(.rodata*) } > RAM
-    .data   : { *(.data*)   } > RAM
-    .bss    : { *(.bss*)    } > RAM
+    /* Non-initialized data */
+    .bss : {
+        . = ALIGN(4);
+        *(.bss .bss.*)
+        *(COMMON)
+    } > ram
 
-    /* On définit le haut de la pile à la fin de la RAM */
-    _stack_top = ORIGIN(RAM) + LENGTH(RAM);
+    /* Stack top -> ram top */
+    _stack_top = ORIGIN(ram) + LENGTH(ram);
+
+    _end = .;
 }

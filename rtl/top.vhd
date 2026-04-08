@@ -6,8 +6,8 @@ entity top is
     port (
         clk_i    : in  std_logic; 
         rst_i    : in  std_logic; 
-        gpio_o   : out std_logic_vector(31 downto 0);
-        irq      : out std_logic
+        irq_i     : out std_logic;
+        gpio_o   : out std_logic_vector(31 downto 0)
     );
 end entity;
 
@@ -23,6 +23,7 @@ architecture behav of top is
 
     signal ram_rdata  : std_logic_vector(31 downto 0);
     signal timer_rdata  : std_logic_vector(31 downto 0);
+    signal gpio_rdata  : std_logic_vector(31 downto 0);
 
     signal gpio_ready : std_logic;
     signal ram_ready : std_logic;
@@ -34,8 +35,8 @@ architecture behav of top is
 
     signal resetn : std_logic;
 
-    signal timer_irq : std_logic;
-    signal cpu_irq : std_logic;
+    signal cpu_to_timer_eoi : std_logic_vector(31 downto 0);
+    signal timer_to_cpu_irq : std_logic;
 
 begin
 
@@ -56,7 +57,8 @@ begin
         pcpi_rd    => (others => '0'),
         pcpi_wait  => '0',
         pcpi_ready => '0',
-        irq        => (31 downto 1 => '0') & cpu_irq
+        eoi        => cpu_to_timer_eoi,
+        irq => (31 downto 1 => '0') & timer_to_cpu_irq
     );
 
     -- RAM : 0x00000000 - 0x0000FFFF
@@ -80,11 +82,12 @@ begin
         addr => mem_addr,
         wdata => mem_wdata,
         wstrb => mem_wstrb,
-        rdata => gpio_o,
+        rdata => gpio_rdata,
         ready => gpio_ready,
         sel => gpio_sel
     );
 
+    -- Timer : 0x200000000 -> x20000004
     timer_inst: entity work.timer
         port map (
             clk => clk_i,
@@ -94,14 +97,15 @@ begin
             wstrb => mem_wstrb,
             ready => timer_ready,
             rdata => timer_rdata,
-            irq => timer_irq,
+            eoi => cpu_to_timer_eoi(0),
+            irq => timer_to_cpu_irq,
             sel => timer_sel
         );
 
-
-    cpu_irq <= timer_irq;
-    irq <= cpu_irq;
-
+    -- IO
+    irq_i <= timer_to_cpu_irq;
+    gpio_o <= gpio_rdata;
+    
     -- select logic
     ram_sel  <= '1' when (mem_addr(31 downto 28) = "0000" and mem_valid = '1') else '0';
     gpio_sel <= '1' when (mem_addr(31 downto 28) = "0001" and mem_valid = '1') else '0';

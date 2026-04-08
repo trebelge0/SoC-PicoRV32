@@ -5,11 +5,11 @@ use ieee.numeric_std.all;
 entity gpio is
     port (
         clk        : in  std_logic;
-        reset        : in  std_logic;
+        reset      : in  std_logic;
         addr       : in  std_logic_vector(31 downto 0);
         wdata      : in  std_logic_vector(31 downto 0);
         wstrb      : in  std_logic_vector(3 downto 0);
-        sel   : in  std_logic;
+        sel        : in  std_logic;
 
         ready : out std_logic;
         rdata : out std_logic_vector(31 downto 0)
