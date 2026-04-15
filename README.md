@@ -172,6 +172,6 @@ To launch the test, run the Python program *run_VUnit.py*.
 
 ## References
 
-https://cese.ewi.tudelft.nl/computer-engineering/docs/RISCV_CARD.pdf
-https://cese.ewi.tudelft.nl/computer-engineering/add_resources.html#risc-v-register-map
-https://github.com/YosysHQ/picorv32/tree/main
+* https://cese.ewi.tudelft.nl/computer-engineering/docs/RISCV_CARD.pdf
+* https://cese.ewi.tudelft.nl/computer-engineering/add_resources.html#risc-v-register-map
+* https://github.com/YosysHQ/picorv32/tree/main
