@@ -116,6 +116,8 @@ I developed a bootloader (*start.S*) and defined the memory layout (*linker.ld*)
 * **`00000514` <main>**: Main program loop.
 * **`00000538` <irq_handler>**: C function that handles the interrupt logic and updates `mtimecmp` for the next event.
 
+--- 
+
 ## How to run
 
 ### 1. Install Dependencies
@@ -129,7 +131,7 @@ sudo apt install gcc-riscv64-unknown-elf
 ```
 
 ### 2. Compile and Simulate (GUI)
-Makefile a the root of the repo.
+In, the Makefile a the root of the repo:
 
 To automatically compile the C firmware (It runs sw/Makefile to get hex firmware) and launch VUnit tests:
 
@@ -147,7 +149,8 @@ To only launch tests:
 make test
 ```
 
-In sw/Makefile
+In sw/Makefile:
+
 To get program architecture with addresses for debugging, run:
 ```bash
 make debug
@@ -166,3 +169,9 @@ The project integrates **Unit Testing** using **VUnit**. Scenarios defined in *s
 * **test_long_run**: Analyzes processor stability over an extended execution period.
 
 To launch the test, run the Python program *run_VUnit.py*.
+
+## References
+
+https://cese.ewi.tudelft.nl/computer-engineering/docs/RISCV_CARD.pdf
+https://cese.ewi.tudelft.nl/computer-engineering/add_resources.html#risc-v-register-map
+https://github.com/YosysHQ/picorv32/tree/main
